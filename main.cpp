@@ -1,13 +1,75 @@
 #include <Windows.h>
-#pragma warning(push)
-//C4023‚ÌŒx‚ğŒ©‚È‚©‚Á‚½‚±‚Æ‚É‚·‚é
-#pragma warning(disable:4023)
-#pragma warning(pop)
+#include <cstdint>
 
-// WindowsƒAƒvƒŠ‚Å‚ÌƒGƒ“ƒgƒŠ[ƒ|ƒCƒ“ƒgimainŠÖ”j
+
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
+
+	switch (msg) {
+
+	case WM_DESTROY:
+
+		PostQuitMessage(0);
+		return 0;
+	}
+
+	return DefWindowProc(hwnd, msg, wparam, lparam);
+}
+
+const int32_t kClientWidth = 1280;
+
+const int32_t kClientHeight = 720;
+
+RECT wrc = { 0, 0, kClientWidth, kClientHeight };
+
+// Windowsã‚¢ãƒ—ãƒªã§ã®ã‚¨ãƒ³ãƒˆãƒªãƒ¼ãƒã‚¤ãƒ³ãƒˆï¼ˆmainé–¢æ•°ï¼‰
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
-	//o—ÍƒEƒBƒ“ƒhƒE‚Ö‚Ì•¶šo—Í
+	//å‡ºåŠ›ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã¸ã®æ–‡å­—å‡ºåŠ›
 	OutputDebugStringA("Hello,DirectX!\n");
+
+	WNDCLASS wc{};
+
+	wc.lpfnWndProc = WindowProc;
+
+	wc.lpszClassName = L"CG2WindowClass";
+
+	wc.hInstance = GetModuleHandle(nullptr);
+
+	wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
+
+	RegisterClass(&wc);
+
+	AdjustWindowRect(&wrc, WS_OVERLAPPEDWINDOW, false);
+
+	HWND hwnd = CreateWindow(
+		wc.lpszClassName,
+		L"CG2",
+		WS_OVERLAPPEDWINDOW,
+		CW_USEDEFAULT,
+		CW_USEDEFAULT,
+		wrc.right - wrc.left,
+		wrc.bottom - wrc.top,
+		nullptr,
+		nullptr,
+		wc.hInstance,
+		nullptr);
+
+	ShowWindow(hwnd, SW_SHOW);
+
+
+	MSG msg{};
+
+	while (msg.message != WM_QUIT) {
+
+		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}else {
+
+			//ã‚²ãƒ¼ãƒ å‡¦ç†
+
+		}
+	}
+
 
 	return 0;
 }
