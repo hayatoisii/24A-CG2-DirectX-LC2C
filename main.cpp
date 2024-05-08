@@ -361,30 +361,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 	}
 	
-	//さっき///////////////////////////////////////////////////////////////////
-	IDxcUtils* dxcUtils = nullptr;
-	IDxcCompiler3* dxcCompiler = nullptr;
-	hr = DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&dxcUtils));
-	assert(SUCCEEDED(hr));
-	hr = DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&dxcCompiler));
-	assert(SUCCEEDED(hr));
-
-
-	//現時点でincludeはしないが、includeに対応するための設定を行っておく
-	IDxcIncludeHandler * includeHandler = nullptr;
-	hr = dxcUtils->CreateDefaultIncludeHandler(&includeHandler);
-	assert(SUCCEEDED(hr));
-
-
-	IDxcBlob* CompileShader(
-		//CompilerするShaderファイルへのパス
-		const std::wstring& filePath,
-		//Compilerに思料するProfile
-		const wchar_t* profile,
-		//初期化で生成したものを3つ
-		IDxcUtils* dxcCompiler,
-		IDxcCompiler3* ddxcCompiler,
-		IDxcIncludeHandler* includeHandler);
 
 
 	//Log("Hello\n");
@@ -416,8 +392,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	commandAllocator->Release();
 	commandQueue->Release();
 	device->Release();
-	useAdapter->Release();
-	dxgiFactory->Release();
 	useAdapter->Release();
 	dxgiFactory->Release();
 #ifdef _DEBUG
