@@ -13,6 +13,9 @@
 #include <dxgidebug.h>
 #pragma comment(lib, "dxguid.lib")
 
+#include <dxcapi.h>
+#pragma comment(lib, "dxcompiler.lib")
+
 std::wstring ConvertString(const std::string& str) {
 	if (str.empty()) {
 		return std::wstring();
@@ -271,6 +274,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	HANDLE fenceEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 	assert(fenceEvent != nullptr);
 
+
 	/////////////////////////
 
 	while (msg.message != WM_QUIT) {
@@ -281,6 +285,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}else {
 
 			//ゲーム処理
+
 			
 			//これから書き込むバッファのインデックスを取得
 			UINT backBufferIndex = swapChain->GetCurrentBackBufferIndex();
@@ -356,6 +361,31 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 	}
 	
+	//さっき///////////////////////////////////////////////////////////////////
+	IDxcUtils* dxcUtils = nullptr;
+	IDxcCompiler3* dxcCompiler = nullptr;
+	hr = DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&dxcUtils));
+	assert(SUCCEEDED(hr));
+	hr = DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&dxcCompiler));
+	assert(SUCCEEDED(hr));
+
+
+	//現時点でincludeはしないが、includeに対応するための設定を行っておく
+	IDxcIncludeHandler * includeHandler = nullptr;
+	hr = dxcUtils->CreateDefaultIncludeHandler(&includeHandler);
+	assert(SUCCEEDED(hr));
+
+
+	IDxcBlob* CompileShader(
+		//CompilerするShaderファイルへのパス
+		const std::wstring& filePath,
+		//Compilerに思料するProfile
+		const wchar_t* profile,
+		//初期化で生成したものを3つ
+		IDxcUtils* dxcCompiler,
+		IDxcCompiler3* ddxcCompiler,
+		IDxcIncludeHandler* includeHandler);
+
 
 	//Log("Hello\n");
 	//Log(std::format("enemyHp:{}, texturePath:{}\n", 10, 20));
@@ -399,7 +429,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 	//2_0///////////////
-
 
 
 	//2_0///////////////
