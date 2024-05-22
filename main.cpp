@@ -20,6 +20,18 @@ struct Vector4 {
 	float x, y, z, w;
 };
 
+struct Matrix4x4 final {
+	float m[4][4];
+};
+
+Matrix4x4 MakeIdentity4x4() {
+	Matrix4x4 result = {};
+	for (int i = 0; i < 4; i++) {
+		result.m[i][i] = 1;
+	}
+	return result;
+}
+
 std::wstring ConvertString(const std::string& str) {
 	if (str.empty()) {
 		return std::wstring();
@@ -409,12 +421,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	rootParameters[0].Descriptor.ShaderRegister = 0;
+
 	descriptionRootSignature.pParameters = rootParameters;
 	descriptionRootSignature.NumParameters = _countof(rootParameters);
-
-
-
-	//////////////////////////////////////////////////////////////////////////////
 
 
 
