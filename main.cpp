@@ -392,6 +392,7 @@ Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Ve
 
 #pragma endregion
 
+
 Matrix4x4 MakeIdentity4x4() {
 	Matrix4x4 result = {};
 	for (int i = 0; i < 4; i++) {
@@ -409,7 +410,13 @@ struct Transform1 {
 
 Transform1 transform{ { 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f, }};
 
+Transform1 cameraTransform{ {1.0f,1.0f,1.0f,}, {0.0f,0.0f,0.0f}, {0.0f, 0.0f, -5.0f} };
 
+Matrix4x4 MakePerspectiveFovmatrix(float fovY, float aspectration, float nearClip, float farClip) {
+
+
+
+}
 
 std::wstring ConvertString(const std::string& str) {
 	if (str.empty()) {
@@ -548,7 +555,7 @@ ID3D12Resource* CreateBufferResource(ID3D12Device* device, size_t sizeIntBytes)
 	D3D12_RESOURCE_DESC vertexResourceDesc{};
 	//バッファリソース、テクスチャの場合はまた別の設定をする
 	vertexResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	vertexResourceDesc.Width = sizeof(Vector4) * 3;
+	vertexResourceDesc.Width = sizeIntBytes;
 	//バッファの場合はこれらは1にする決まり
 	vertexResourceDesc.Height = 1;
 	vertexResourceDesc.DepthOrArraySize = 1;
@@ -806,15 +813,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	descriptionRootSignature.pParameters = rootParameters;
 	descriptionRootSignature.NumParameters = _countof(rootParameters);
 
-	//WVp用のリソースを作る。Matrix4x4　一つ分のサイズを用意する
-	ID3D12Resource* wvpResource = CreateBufferResource(device, sizeof(Matrix4x4));
-	//データを書き込む
-	Matrix4x4* wvpDate = nullptr;
-	//書き込むためのアドレスえお取得
-	wvpResource->Map(0, nullptr, reinterpret_cast<void**>(&wvpDate));
-	//単位行列を書き込んでおく
-	*wvpDate = MakeIdentity4x4();
-
 
 	//シリアライズしてバイナリにする
 	ID3DBlob* signatureBlob = nullptr;
@@ -901,6 +899,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//今回は赤を書き込んでみる
 	*materialDate = Vector4(1.0f, 0.0f, 0.0f, 1.0f);
 
+
+	//WVp用のリソースを作る。Matrix4x4　一つ分のサイズを用意する
+	ID3D12Resource* wvpResource = CreateBufferResource(device, sizeof(Matrix4x4));
+	//データを書き込む
+	Matrix4x4* wvpDate = nullptr;
+	//書き込むためのアドレスえお取得
+	wvpResource->Map(0, nullptr, reinterpret_cast<void**>(&wvpDate));
+	//単位行列を書き込んでおく
+	*wvpDate = MakeIdentity4x4();
+
+
 		//頂点バッファビューを作成する
 		D3D12_VERTEX_BUFFER_VIEW vertexBufferView{};
 		//リソースのsizeは頂点３つ分のsize
@@ -958,6 +967,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			//ゲーム処理
 
+			transform.rotate.y += 0.03f;
+			Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
+			*wvpDate = worldMatrix;
 
 			//これから書き込むバッファのインデックスを取得
 			UINT backBufferIndex = swapChain->GetCurrentBackBufferIndex();
@@ -1019,13 +1031,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			//　GPUとOSに画面の交換を行うように通知する
 			swapChain->Present(1, 0);
 
-			/////////////////////////////////1-02
 
 			fenceValue++;
-
 			commandQueue->Signal(fence, fenceValue);
-
-			////////これどこかわからないいけどここでよさそう
 
 			if (fence->GetCompletedValue() < fenceValue) {
 
@@ -1036,18 +1044,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			}
 
 
-			/////////////////////////////////
-
 			//次のフレーム用のコマンドリストを準備
 			hr = commandAllocator->Reset();
 			assert(SUCCEEDED(hr));
 			hr = commandList->Reset(commandAllocator, nullptr);
 			assert(SUCCEEDED(hr));
-
-
-			transform.rotate.y = 0.03f;
-			Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
-			*wvpDate = worldMatrix;
 
 
 		}
