@@ -20,9 +20,377 @@ struct Vector4 {
 	float x, y, z, w;
 };
 
-struct Matrix4x4 final {
+struct Vector3 {
+	float x, y, z;
+};
+
+struct Matrix4x4 {
 	float m[4][4];
 };
+
+#pragma region
+
+Matrix4x4 Add(const Matrix4x4& mt1, const Matrix4x4& mt2) {
+
+
+	Matrix4x4 ans;
+
+	ans.m[0][0] = mt1.m[0][0] + mt2.m[0][0];
+	ans.m[0][1] = mt1.m[0][1] + mt2.m[0][1];
+	ans.m[0][2] = mt1.m[0][2] + mt2.m[0][2];
+	ans.m[0][3] = mt1.m[0][3] + mt2.m[0][3];
+
+	ans.m[1][0] = mt1.m[1][0] + mt2.m[1][0];
+	ans.m[1][1] = mt1.m[1][1] + mt2.m[1][1];
+	ans.m[1][2] = mt1.m[1][2] + mt2.m[1][2];
+	ans.m[1][3] = mt1.m[1][3] + mt2.m[1][3];
+
+	ans.m[2][0] = mt1.m[2][0] + mt2.m[2][0];
+	ans.m[2][1] = mt1.m[2][1] + mt2.m[2][1];
+	ans.m[2][2] = mt1.m[2][2] + mt2.m[2][2];
+	ans.m[2][3] = mt1.m[2][3] + mt2.m[2][3];
+
+	ans.m[3][0] = mt1.m[3][0] + mt2.m[3][0];
+	ans.m[3][1] = mt1.m[3][1] + mt2.m[3][1];
+	ans.m[3][2] = mt1.m[3][2] + mt2.m[3][2];
+	ans.m[3][3] = mt1.m[3][3] + mt2.m[3][3];
+
+	return ans;
+
+}
+
+Matrix4x4 Subtract(const Matrix4x4& mt1, const Matrix4x4& mt2) {
+
+	Matrix4x4 ans;
+
+	ans.m[0][0] = mt1.m[0][0] - mt2.m[0][0];
+	ans.m[0][1] = mt1.m[0][1] - mt2.m[0][1];
+	ans.m[0][2] = mt1.m[0][2] - mt2.m[0][2];
+	ans.m[0][3] = mt1.m[0][3] - mt2.m[0][3];
+
+	ans.m[1][0] = mt1.m[1][0] - mt2.m[1][0];
+	ans.m[1][1] = mt1.m[1][1] - mt2.m[1][1];
+	ans.m[1][2] = mt1.m[1][2] - mt2.m[1][2];
+	ans.m[1][3] = mt1.m[1][3] - mt2.m[1][3];
+
+	ans.m[2][0] = mt1.m[2][0] - mt2.m[2][0];
+	ans.m[2][1] = mt1.m[2][1] - mt2.m[2][1];
+	ans.m[2][2] = mt1.m[2][2] - mt2.m[2][2];
+	ans.m[2][3] = mt1.m[2][3] - mt2.m[2][3];
+
+	ans.m[3][0] = mt1.m[3][0] - mt2.m[3][0];
+	ans.m[3][1] = mt1.m[3][1] - mt2.m[3][1];
+	ans.m[3][2] = mt1.m[3][2] - mt2.m[3][2];
+	ans.m[3][3] = mt1.m[3][3] - mt2.m[3][3];
+
+	return ans;
+}
+
+Matrix4x4 Multiply(const Matrix4x4& mt1, const Matrix4x4& mt2) {
+
+	Matrix4x4 ans = {};
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			for (int k = 0; k < 4; k++) {
+
+				ans.m[i][j] += mt1.m[i][k] * mt2.m[k][j];
+			}
+		}
+	}
+	return ans;
+}
+
+Matrix4x4 Inverse(const Matrix4x4& mt1) {
+	Matrix4x4 ans;
+	float A = 0;
+	A = mt1.m[0][0] * mt1.m[1][1] * mt1.m[2][2] * mt1.m[3][3] + mt1.m[0][0] * mt1.m[1][2] * mt1.m[2][3] * mt1.m[3][1] + mt1.m[0][0] * mt1.m[1][3] * mt1.m[2][1] * mt1.m[3][2] -
+		mt1.m[0][0] * mt1.m[1][3] * mt1.m[2][2] * mt1.m[3][1] - mt1.m[0][0] * mt1.m[1][2] * mt1.m[2][1] * mt1.m[3][3] - mt1.m[0][0] * mt1.m[1][1] * mt1.m[2][3] * mt1.m[3][2] -
+		mt1.m[0][1] * mt1.m[1][0] * mt1.m[2][2] * mt1.m[3][3] - mt1.m[0][2] * mt1.m[1][0] * mt1.m[2][3] * mt1.m[3][1] - mt1.m[0][3] * mt1.m[1][0] * mt1.m[2][1] * mt1.m[3][2] +
+		mt1.m[0][3] * mt1.m[1][0] * mt1.m[2][2] * mt1.m[3][1] + mt1.m[0][2] * mt1.m[1][0] * mt1.m[2][1] * mt1.m[3][3] + mt1.m[0][1] * mt1.m[1][0] * mt1.m[2][3] * mt1.m[3][2] +
+		mt1.m[0][1] * mt1.m[1][2] * mt1.m[2][0] * mt1.m[2][2] + mt1.m[0][2] * mt1.m[1][3] * mt1.m[2][0] * mt1.m[3][1] + mt1.m[0][3] * mt1.m[1][1] * mt1.m[2][0] * mt1.m[3][2] -
+		mt1.m[0][3] * mt1.m[1][2] * mt1.m[2][0] * mt1.m[3][1] - mt1.m[0][2] * mt1.m[1][1] * mt1.m[2][0] * mt1.m[3][3] - mt1.m[0][1] * mt1.m[1][3] * mt1.m[2][0] * mt1.m[3][2] -
+		mt1.m[0][1] * mt1.m[1][2] * mt1.m[2][3] * mt1.m[3][0] - mt1.m[0][2] * mt1.m[1][3] * mt1.m[2][1] * mt1.m[3][0] - mt1.m[0][3] * mt1.m[1][1] * mt1.m[2][2] * mt1.m[3][0] +
+		mt1.m[0][3] * mt1.m[1][2] * mt1.m[2][0] * mt1.m[3][0] + mt1.m[0][2] * mt1.m[1][1] * mt1.m[2][3] * mt1.m[3][0] + mt1.m[0][1] * mt1.m[1][3] * mt1.m[2][2] * mt1.m[3][0];
+
+	ans.m[0][0] = (mt1.m[1][1] * mt1.m[2][2] * mt1.m[3][3] + mt1.m[1][2] * mt1.m[2][3] * mt1.m[3][1] + mt1.m[1][3] * mt1.m[2][1] * mt1.m[3][2] - mt1.m[1][3] * mt1.m[2][2] * mt1.m[3][1] -
+		mt1.m[1][2] * mt1.m[2][1] * mt1.m[3][3] - mt1.m[1][1] * mt1.m[2][3] * mt1.m[3][2]) /
+		A;
+
+	ans.m[0][1] = (-mt1.m[0][1] * mt1.m[2][2] * mt1.m[3][3] - mt1.m[0][2] * mt1.m[2][3] * mt1.m[3][1] - mt1.m[0][3] * mt1.m[2][1] * mt1.m[3][2] + mt1.m[0][3] * mt1.m[2][2] * mt1.m[3][1] +
+		mt1.m[0][2] * mt1.m[2][1] * mt1.m[3][3] + mt1.m[0][1] * mt1.m[2][3] * mt1.m[3][2]) /
+		A;
+
+	ans.m[0][2] = (mt1.m[0][1] * mt1.m[1][2] * mt1.m[3][3] + mt1.m[0][2] * mt1.m[1][3] * mt1.m[3][1] + mt1.m[0][3] * mt1.m[1][1] * mt1.m[3][2] - mt1.m[0][3] * mt1.m[1][2] * mt1.m[3][1] -
+		mt1.m[0][2] * mt1.m[1][1] * mt1.m[3][3] - mt1.m[0][1] * mt1.m[1][3] * mt1.m[3][2]) /
+		A;
+
+	ans.m[0][3] = (-mt1.m[0][1] * mt1.m[1][2] * mt1.m[2][3] - mt1.m[0][2] * mt1.m[1][3] * mt1.m[2][1] - mt1.m[0][3] * mt1.m[1][1] * mt1.m[2][2] + mt1.m[0][3] * mt1.m[1][2] * mt1.m[2][1] +
+		mt1.m[0][2] * mt1.m[1][1] * mt1.m[2][3] + mt1.m[0][1] * mt1.m[1][3] * mt1.m[2][2]) /
+		A;
+
+	ans.m[1][0] = (-mt1.m[1][0] * mt1.m[2][2] * mt1.m[3][3] - mt1.m[1][2] * mt1.m[2][3] * mt1.m[3][0] - mt1.m[1][3] * mt1.m[2][0] * mt1.m[3][2] + mt1.m[1][3] * mt1.m[2][2] * mt1.m[3][0] +
+		mt1.m[1][2] * mt1.m[2][0] * mt1.m[3][3] + mt1.m[1][0] * mt1.m[2][3] * mt1.m[3][2]) /
+		A;
+
+	ans.m[1][1] = (mt1.m[0][0] * mt1.m[2][2] * mt1.m[3][3] + mt1.m[0][2] * mt1.m[2][3] * mt1.m[3][0] + mt1.m[0][3] * mt1.m[2][0] * mt1.m[3][2] - mt1.m[0][3] * mt1.m[2][2] * mt1.m[3][0] -
+		mt1.m[0][2] * mt1.m[2][0] * mt1.m[3][3] - mt1.m[0][0] * mt1.m[2][3] * mt1.m[3][2]) /
+		A;
+
+	ans.m[1][2] = (-mt1.m[0][0] * mt1.m[1][2] * mt1.m[3][3] - mt1.m[0][2] * mt1.m[1][3] * mt1.m[3][0] - mt1.m[0][3] * mt1.m[1][0] * mt1.m[3][2] + mt1.m[0][3] * mt1.m[1][2] * mt1.m[3][0] +
+		mt1.m[0][2] * mt1.m[1][0] * mt1.m[3][3] + mt1.m[0][0] * mt1.m[1][3] * mt1.m[3][2]) /
+		A;
+
+	ans.m[1][3] = (mt1.m[0][0] * mt1.m[1][2] * mt1.m[2][3] + mt1.m[0][2] * mt1.m[1][3] * mt1.m[2][0] + mt1.m[0][3] * mt1.m[1][0] * mt1.m[2][2] - mt1.m[0][3] * mt1.m[1][2] * mt1.m[2][0] -
+		mt1.m[0][2] * mt1.m[1][0] * mt1.m[2][3] - mt1.m[0][0] * mt1.m[1][3] * mt1.m[2][2]) /
+		A;
+
+	ans.m[2][0] = (mt1.m[1][0] * mt1.m[2][1] * mt1.m[3][3] + mt1.m[1][1] * mt1.m[2][3] * mt1.m[3][0] + mt1.m[1][3] * mt1.m[2][0] * mt1.m[3][1] - mt1.m[1][3] * mt1.m[2][1] * mt1.m[3][0] -
+		mt1.m[1][1] * mt1.m[2][0] * mt1.m[3][3] - mt1.m[1][0] * mt1.m[2][3] * mt1.m[3][1]) /
+		A;
+
+	ans.m[2][1] = (-mt1.m[0][0] * mt1.m[2][1] * mt1.m[3][3] - mt1.m[0][1] * mt1.m[2][3] * mt1.m[3][0] - mt1.m[0][3] * mt1.m[2][0] * mt1.m[3][1] + mt1.m[0][3] * mt1.m[2][1] * mt1.m[3][0] +
+		mt1.m[0][1] * mt1.m[2][0] * mt1.m[3][3] + mt1.m[0][0] * mt1.m[2][3] * mt1.m[3][1]) /
+		A;
+
+	ans.m[2][2] = (mt1.m[0][0] * mt1.m[1][1] * mt1.m[3][3] + mt1.m[0][1] * mt1.m[1][3] * mt1.m[3][0] + mt1.m[0][3] * mt1.m[1][0] * mt1.m[3][1] - mt1.m[0][3] * mt1.m[1][1] * mt1.m[3][0] -
+		mt1.m[0][1] * mt1.m[1][0] * mt1.m[3][3] - mt1.m[0][0] * mt1.m[1][3] * mt1.m[3][1]) /
+		A;
+
+	ans.m[2][3] = (-mt1.m[0][0] * mt1.m[1][1] * mt1.m[2][3] - mt1.m[0][1] * mt1.m[1][3] * mt1.m[2][0] - mt1.m[0][3] * mt1.m[1][0] * mt1.m[2][1] + mt1.m[0][3] * mt1.m[1][1] * mt1.m[2][0] +
+		mt1.m[0][1] * mt1.m[1][0] * mt1.m[2][3] + mt1.m[0][0] * mt1.m[1][3] * mt1.m[2][1]) /
+		A;
+
+	ans.m[3][0] = (-mt1.m[1][0] * mt1.m[2][1] * mt1.m[3][2] - mt1.m[1][1] * mt1.m[2][2] * mt1.m[3][0] - mt1.m[1][2] * mt1.m[2][0] * mt1.m[3][1] + mt1.m[1][2] * mt1.m[2][1] * mt1.m[3][0] +
+		mt1.m[1][1] * mt1.m[2][0] * mt1.m[3][2] + mt1.m[1][0] * mt1.m[2][2] * mt1.m[3][1]) /
+		A;
+
+	ans.m[3][1] = (mt1.m[0][0] * mt1.m[2][1] * mt1.m[3][2] + mt1.m[0][1] * mt1.m[2][2] * mt1.m[3][0] + mt1.m[0][2] * mt1.m[2][0] * mt1.m[3][1] - mt1.m[0][2] * mt1.m[2][1] * mt1.m[3][0] -
+		mt1.m[0][1] * mt1.m[2][0] * mt1.m[3][2] - mt1.m[0][0] * mt1.m[2][2] * mt1.m[3][1]) /
+		A;
+
+	ans.m[3][2] = (-mt1.m[0][0] * mt1.m[1][1] * mt1.m[3][2] - mt1.m[0][1] * mt1.m[1][2] * mt1.m[3][0] - mt1.m[0][2] * mt1.m[1][0] * mt1.m[3][1] + mt1.m[0][2] * mt1.m[1][1] * mt1.m[3][0] +
+		mt1.m[0][1] * mt1.m[1][0] * mt1.m[3][2] + mt1.m[0][0] * mt1.m[1][2] * mt1.m[3][1]) /
+		A;
+
+	ans.m[3][3] = (mt1.m[0][0] * mt1.m[1][1] * mt1.m[2][2] + mt1.m[0][1] * mt1.m[1][2] * mt1.m[2][0] + mt1.m[0][2] * mt1.m[1][0] * mt1.m[2][1] - mt1.m[0][2] * mt1.m[1][1] * mt1.m[2][0] -
+		mt1.m[0][1] * mt1.m[1][0] * mt1.m[2][2] - mt1.m[0][0] * mt1.m[1][2] * mt1.m[2][1]) /
+		A;
+
+	return ans;
+}
+
+Matrix4x4 Transpose(const Matrix4x4& mt1) {
+
+	Matrix4x4 ans;
+
+	ans.m[0][0] = mt1.m[0][0];
+	ans.m[0][1] = mt1.m[1][0];
+	ans.m[0][2] = mt1.m[2][0];
+	ans.m[0][3] = mt1.m[3][0];
+
+	ans.m[1][0] = mt1.m[0][1];
+	ans.m[1][1] = mt1.m[1][1];
+	ans.m[1][2] = mt1.m[2][1];
+	ans.m[1][3] = mt1.m[3][1];
+
+	ans.m[2][0] = mt1.m[0][2];
+	ans.m[2][1] = mt1.m[1][2];
+	ans.m[2][2] = mt1.m[2][2];
+	ans.m[2][3] = mt1.m[3][2];
+
+	ans.m[3][0] = mt1.m[0][3];
+	ans.m[3][1] = mt1.m[1][3];
+	ans.m[3][2] = mt1.m[2][3];
+	ans.m[3][3] = mt1.m[3][3];
+
+	return ans;
+}
+
+Matrix4x4 MekeIdentity4x4() {
+
+	Matrix4x4 ans;
+
+	ans.m[0][0] = 1;
+	ans.m[0][1] = 0;
+	ans.m[0][2] = 0;
+	ans.m[0][3] = 0;
+
+	ans.m[1][0] = 0;
+	ans.m[1][1] = 1;
+	ans.m[1][2] = 0;
+	ans.m[1][3] = 0;
+
+	ans.m[2][0] = 0;
+	ans.m[2][1] = 0;
+	ans.m[2][2] = 1;
+	ans.m[2][3] = 0;
+
+	ans.m[3][0] = 0;
+	ans.m[3][1] = 0;
+	ans.m[3][2] = 0;
+	ans.m[3][3] = 1;
+
+	return ans;
+}
+
+
+Matrix4x4 MakeTranslateMatrix(const Vector3& translate) {
+	Matrix4x4 ans;
+
+	ans.m[0][0] = 1;
+	ans.m[0][1] = 0;
+	ans.m[0][2] = 0;
+	ans.m[0][3] = 0;
+
+	ans.m[1][0] = 0;
+	ans.m[1][1] = 1;
+	ans.m[1][2] = 0;
+	ans.m[1][3] = 0;
+
+	ans.m[2][0] = 0;
+	ans.m[2][1] = 0;
+	ans.m[2][2] = 1;
+	ans.m[2][3] = 0;
+
+	ans.m[3][0] = translate.x;
+	ans.m[3][1] = translate.y;
+	ans.m[3][2] = translate.z;
+	ans.m[3][3] = 1;
+
+	return ans;
+}
+
+Matrix4x4 MakeScaleMatrix(const Vector3& scale) {
+	Matrix4x4 ans;
+
+	ans.m[0][0] = scale.x;
+	ans.m[0][1] = 0;
+	ans.m[0][2] = 0;
+	ans.m[0][3] = 0;
+
+	ans.m[1][0] = 0;
+	ans.m[1][1] = scale.y;
+	ans.m[1][2] = 0;
+	ans.m[1][3] = 0;
+
+	ans.m[2][0] = 0;
+	ans.m[2][1] = 0;
+	ans.m[2][2] = scale.z;
+	ans.m[2][3] = 0;
+
+	ans.m[3][0] = 0;
+	ans.m[3][1] = 0;
+	ans.m[3][2] = 0;
+	ans.m[3][3] = 1;
+	return ans;
+}
+
+Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix) {
+
+	Vector3 ans;
+
+	ans.x = vector.x * matrix.m[0][0] + vector.y * matrix.m[1][0] + vector.z * matrix.m[2][0] + 1.0f * matrix.m[3][0];
+	ans.y = vector.x * matrix.m[0][1] + vector.y * matrix.m[1][1] + vector.z * matrix.m[2][1] + 1.0f * matrix.m[3][1];
+	ans.z = vector.x * matrix.m[0][2] + vector.y * matrix.m[1][2] + vector.z * matrix.m[2][2] + 1.0f * matrix.m[3][2];
+	float w = vector.x * matrix.m[0][3] + vector.y * matrix.m[1][3] + vector.z * matrix.m[2][3] + 1.0f * matrix.m[3][3];
+
+	assert(w != 0.0f);
+	ans.x /= w;
+	ans.y /= w;
+	ans.z /= w;
+	return ans;
+}
+
+Matrix4x4 MakeRotateXMatrix(float radian) {
+
+	Matrix4x4 ans;
+	ans.m[0][0] = 1;
+	ans.m[0][1] = 0;
+	ans.m[0][2] = 0;
+	ans.m[0][3] = 0;
+
+	ans.m[1][0] = 0;
+	ans.m[1][1] = std::cos(radian);
+	;
+	ans.m[1][2] = std::sin(radian);
+	;
+	ans.m[1][3] = 0;
+
+	ans.m[2][0] = 0;
+	ans.m[2][1] = -std::sin(radian);
+	;
+	ans.m[2][2] = std::cos(radian);
+	;
+	ans.m[2][3] = 0;
+
+	ans.m[3][0] = 0;
+	ans.m[3][1] = 0;
+	ans.m[3][2] = 0;
+	ans.m[3][3] = 1;
+
+	return ans;
+}
+
+Matrix4x4 MakeRotateYMatrix(float radian) {
+
+	Matrix4x4 ans;
+	ans.m[0][0] = std::cos(radian);
+	ans.m[0][1] = 0;
+	ans.m[0][2] = -std::sin(radian);
+	ans.m[0][3] = 0;
+
+	ans.m[1][0] = 0;
+	ans.m[1][1] = 1;
+	ans.m[1][2] = 0;
+	ans.m[1][3] = 0;
+
+	ans.m[2][0] = std::sin(radian);
+	;
+	ans.m[2][1] = 0;
+	ans.m[2][2] = std::cos(radian);
+	;
+	ans.m[2][3] = 0;
+
+	ans.m[3][0] = 0;
+	ans.m[3][1] = 0;
+	ans.m[3][2] = 0;
+	ans.m[3][3] = 1;
+
+	return ans;
+}
+
+Matrix4x4 MakeRotateZMatrix(float radian) {
+	Matrix4x4 ans;
+	ans.m[0][0] = std::cos(radian);
+	ans.m[0][1] = std::sin(radian);
+	ans.m[0][2] = 0;
+	ans.m[0][3] = 0;
+
+	ans.m[1][0] = -std::sin(radian);
+	ans.m[1][1] = std::cos(radian);
+	ans.m[1][2] = 0;
+	ans.m[1][3] = 0;
+
+	ans.m[2][0] = 0;
+	ans.m[2][1] = 0;
+	ans.m[2][2] = 1;
+	ans.m[2][3] = 0;
+
+	ans.m[3][0] = 0;
+	ans.m[3][1] = 0;
+	ans.m[3][2] = 0;
+	ans.m[3][3] = 1;
+
+	return ans;
+}
+
+Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate) {
+
+	Matrix4x4 rotateXYZ = Multiply(Multiply(MakeRotateXMatrix(rotate.x), MakeRotateYMatrix(rotate.y)), MakeRotateZMatrix(rotate.z));
+	return Multiply(Multiply(MakeScaleMatrix(scale), rotateXYZ), MakeTranslateMatrix(translate));
+}
+
+#pragma endregion
 
 Matrix4x4 MakeIdentity4x4() {
 	Matrix4x4 result = {};
@@ -31,6 +399,17 @@ Matrix4x4 MakeIdentity4x4() {
 	}
 	return result;
 }
+
+
+struct Transform1 {
+	Vector3 scale;
+	Vector3 rotate;
+	Vector3 translate;
+};
+
+Transform1 transform{ { 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f, }};
+
+
 
 std::wstring ConvertString(const std::string& str) {
 	if (str.empty()) {
@@ -417,14 +796,24 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
 	//RootParameter作成。複数設定できるので配列。今回は結果は1つだけなので長さ１の配列
-	D3D12_ROOT_PARAMETER rootParameters[1] = {};
+	D3D12_ROOT_PARAMETER rootParameters[2] = {};
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	rootParameters[0].Descriptor.ShaderRegister = 0;
-
+	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	rootParameters[1].Descriptor.ShaderRegister = 0;
 	descriptionRootSignature.pParameters = rootParameters;
 	descriptionRootSignature.NumParameters = _countof(rootParameters);
 
+	//WVp用のリソースを作る。Matrix4x4　一つ分のサイズを用意する
+	ID3D12Resource* wvpResource = CreateBufferResource(device, sizeof(Matrix4x4));
+	//データを書き込む
+	Matrix4x4* wvpDate = nullptr;
+	//書き込むためのアドレスえお取得
+	wvpResource->Map(0, nullptr, reinterpret_cast<void**>(&wvpDate));
+	//単位行列を書き込んでおく
+	*wvpDate = MakeIdentity4x4();
 
 
 	//シリアライズしてバイナリにする
@@ -603,12 +992,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			commandList->SetPipelineState(graphicsPipelineState);
 			commandList->IASetVertexBuffers(0, 1, &vertexBufferView);//
 			commandList->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
+			commandList->SetGraphicsRootConstantBufferView(1, wvpResource->GetGPUVirtualAddress());
 			//形状を設定。PSOに設定しているものとはまた別、同じものを設定すると考えておけば良い
 			commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 			//描画　（DrawCall/drawコール）　。　3頂点で1つのインスタンス。
 			commandList->DrawInstanced(3, 1, 0, 0);
-
-
 
 			/////////////////////////////////////
 
@@ -656,6 +1044,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			hr = commandList->Reset(commandAllocator, nullptr);
 			assert(SUCCEEDED(hr));
 
+
+			transform.rotate.y = 0.03f;
+			Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
+			*wvpDate = worldMatrix;
+
+
 		}
 	}
 
@@ -681,7 +1075,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 
 
-
+	wvpResource->Release();
 	vertexResource->Release();
 	graphicsPipelineState->Release();
 	signatureBlob->Release();
