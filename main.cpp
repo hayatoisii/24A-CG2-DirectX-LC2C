@@ -16,6 +16,12 @@
 #include <dxcapi.h>
 #pragma comment(lib, "dxcompiler.lib")
 
+#include "externals/imgui/imgui.h"
+#include "externals/imgui/imgui_impl_dx12.h"
+#include "externals/imgui/imgui_impl_win32.h"
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wPARAm, LPARAM lParam);
+
+
 struct Vector4 {
 	float x, y, z, w;
 };
@@ -390,6 +396,37 @@ Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Ve
 	return Multiply(Multiply(MakeScaleMatrix(scale), rotateXYZ), MakeTranslateMatrix(translate));
 }
 
+
+
+//透視投影行列
+Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip, float farClip) {
+
+	Matrix4x4 result;
+
+	result.m[0][0] = 1 / (aspectRatio * std::tan(fovY / 2));
+	result.m[1][0] = 0;
+	result.m[2][0] = 0;
+	result.m[3][0] = 0;
+
+	result.m[0][1] = 0;
+	result.m[1][1] = 1 / std::tan(fovY / 2);
+	result.m[2][1] = 0;
+	result.m[3][1] = 0;
+
+	result.m[0][2] = 0;
+	result.m[1][2] = 0;
+	result.m[2][2] = farClip / (farClip - nearClip);
+	result.m[3][2] = (-nearClip * farClip * std::cos(0.0f)) / (farClip - nearClip);
+
+	result.m[0][3] = 0;
+	result.m[1][3] = 0;
+	result.m[2][3] = 1;
+	result.m[3][3] = 0;
+
+	return result;
+}
+
+
 #pragma endregion
 
 
@@ -412,11 +449,6 @@ Transform1 transform{ { 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f, 
 
 Transform1 cameraTransform{ {1.0f,1.0f,1.0f,}, {0.0f,0.0f,0.0f}, {0.0f, 0.0f, -5.0f} };
 
-Matrix4x4 MakePerspectiveFovmatrix(float fovY, float aspectration, float nearClip, float farClip) {
-
-
-
-}
 
 std::wstring ConvertString(const std::string& str) {
 	if (str.empty()) {
@@ -447,6 +479,11 @@ std::string ConvertString(const std::wstring& str) {
 }
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
+
+	if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam)) {
+		return true;
+	}
+
 
 	switch (msg) {
 
@@ -577,6 +614,23 @@ ID3D12Resource* CreateBufferResource(ID3D12Device* device, size_t sizeIntBytes)
 	return vertexResource;
 
 };
+
+
+
+ID3D12DescriptorHeap* CreateDescriptorHeap(
+	ID3D12Device* device, D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible){
+
+		ID3D12DescriptorHeap * descriptorHeap = nullptr;
+        D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
+        descriptorHeapDesc.Type = heapType;
+        descriptorHeapDesc.NumDescriptors = numDescriptors;
+        descriptorHeapDesc.Flags = shaderVisible ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+        HRESULT hr = device->CreateDescriptorHeap(&descriptorHeapDesc, IID_PPV_ARGS(&descriptorHeap));
+	    assert(SUCCEEDED(hr));
+        return descriptorHeap;
+
+	}
+
 
 
 
@@ -742,7 +796,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	hr = dxgiFactory->CreateSwapChainForHwnd(commandQueue, hwnd, &swapChainDesc, nullptr, nullptr, reinterpret_cast<IDXGISwapChain1**>(&swapChain));
 	assert(SUCCEEDED(hr));
 
-	ID3D12DescriptorHeap* rtvDescriptorHeap = nullptr;
+	ID3D12DescriptorHeap* rtvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
+	ID3D12DescriptorHeap* srvDescriptorHeap = CreateDescriptorHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 128, true);
 	D3D12_DESCRIPTOR_HEAP_DESC rtvDescriptorHeapDesc{};
 	rtvDescriptorHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	rtvDescriptorHeapDesc.NumDescriptors = 2;
@@ -954,7 +1009,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGui::StyleColorsDark();
+	ImGui_ImplWin32_Init(hwnd);
+	ImGui_ImplDX12_Init(device,
+		swapChainDesc.BufferCount,
+		rtvDesc.Format,
+		srvDescriptorHeap,
+		srvDescriptorHeap->GetCPUDescriptorHandleForHeapStart(),
+		srvDescriptorHeap->GetGPUDescriptorHandleForHeapStart());
 
+	ImGui_ImplDX12_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+	ImGui::ShowDemoWindow();
+	ImGui::Render();
 
 
 	while (msg.message != WM_QUIT) {
@@ -969,6 +1039,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 			transform.rotate.y += 0.03f;
 			Matrix4x4 worldMatrix = MakeAffineMatrix(transform.scale, transform.rotate, transform.translate);
+			Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransform.scale, cameraTransform.rotate, cameraTransform.translate);
+			Matrix4x4 viewMatrix = Inverse(cameraMatrix);
+			Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kClientWidth) / float(kClientHeight), 0.1f, 100.0f);
+			Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
+		//	*transformationMatrixData = 
 			*wvpDate = worldMatrix;
 
 			//これから書き込むバッファのインデックスを取得
@@ -996,6 +1071,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			float clearColor[] = { 0.1f, 0.25f, 0.5f, 1.0f };
 			commandList->ClearRenderTargetView(rtvHandles[backBufferIndex], clearColor, 0, nullptr);
 
+			//描画用のDescriptorHeapの設定
+			ID3D12DescriptorHeap* descriptorHeaps[] = { srvDescriptorHeap };
+			commandList->SetDescriptorHeaps(1, descriptorHeaps);
+
+			//実際のcommandListのImGuiの描画コマンドを積む
+			ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandList);
+
+			ImGui_ImplDX12_Shutdown();
+			ImGui_ImplWin32_Shutdown();
+			ImGui::DestroyContext();
 
 			commandList->RSSetViewports(1, &viewport);
 			commandList->RSSetScissorRects(1, &scissorRect);
