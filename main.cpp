@@ -797,6 +797,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			ImGui::NewFrame();
 			ImGui::Begin("SetColor");
 			ImGui::ColorEdit4("*materialData", &materialDate->x);
+			ImGui::DragFloat3("scale", &transform.scale.x);
+			ImGui::DragFloat3("rotate", &transform.rotate.x);
+			ImGui::DragFloat3("translate", &transform.translate.x);
 			ImGui::End();
 			ImGui::ShowDemoWindow();
 			ImGui::Render();
