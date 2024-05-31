@@ -33,7 +33,7 @@ struct Vector2 {
 };
 
 struct Vector4 {
-	float x, y ,z ,w;
+	float x, y, z, w;
 };
 
 Matrix4x4 MakeIdentity4x4() {
@@ -693,7 +693,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//書き込むためのアドレスを取得
 	materialResource->Map(0, nullptr, reinterpret_cast<void**>(&materialDate));
 	//今回は赤を書き込んでみる
-	*materialDate = Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+	*materialDate = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 
 
 	//WVp用のリソースを作る。Matrix4x4　一つ分のサイズを用意する
@@ -946,5 +946,3 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	return 0;
 }
-
-
