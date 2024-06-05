@@ -918,6 +918,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			ImGui::DragFloat3("scale", &transform.scale.x);
 			ImGui::DragFloat3("rotate", &transform.rotate.x);
 			ImGui::DragFloat3("translate", &transform.translate.x);
+			ImGui::DragFloat3("scale2", &transformSprite.scale.x);
+			ImGui::DragFloat3("rotate2", &transformSprite.rotate.x);
+			ImGui::DragFloat3("translate2", &transformSprite.translate.x);
 			ImGui::End();
 			ImGui::ShowDemoWindow();
 			ImGui::Render();
