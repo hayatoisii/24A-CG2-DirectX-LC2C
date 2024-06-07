@@ -45,15 +45,15 @@ Matrix4x4 MakeIdentity4x4() {
 }
 
 
-struct Transform1 {
+struct Transform {
 	Vector3 scale;
 	Vector3 rotate;
 	Vector3 translate;
 };
 
-Transform1 transform{ { 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f, } };
+Transform transform{ { 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f, } };
 
-Transform1 cameraTransform{ {1.0f,1.0f,1.0f,}, {0.0f,0.0f,0.0f}, {0.0f, 0.0f, -5.0f} };
+Transform cameraTransform{ {1.0f,1.0f,1.0f,}, {0.0f,0.0f,0.0f}, {0.0f, 0.0f, -5.0f} };
 
 
 struct VertexData {
@@ -832,7 +832,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// 単位行列を書き込んでおく
 	*transformationMatrixDataSprite = MakeIdentity4x4();
 
-	Transform1 transformSprite{ {1.0f,1.0f,1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
+	Transform transformSprite{ {1.0f,1.0f,1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
 
 
 
