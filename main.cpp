@@ -1049,6 +1049,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
 
+	intermediateResource->Release();
 	wvpResource->Release();
 	vertexResource->Release();
 	graphicsPipelineState->Release();
