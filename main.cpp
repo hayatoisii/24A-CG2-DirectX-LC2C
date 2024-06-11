@@ -21,9 +21,9 @@
 #include "externals/imgui/imgui_impl_win32.h"
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wPARAm, LPARAM lParam);
 
+#include <vector>
 #include"externals/DirectXTex/DirectXTex.h"
 #include"externals/DirectXTex/d3dx12.h"
-#include <vector>
 
 #include"affine.h"
 #include "Matrix4x4.h"
@@ -200,7 +200,7 @@ ID3D12Resource* CreateBufferResource(ID3D12Device* device, size_t sizeIntBytes)
 
 	//頂点リソース用のヒープの設定
 	D3D12_HEAP_PROPERTIES uploadHeapProperties{};
-	uploadHeapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;// UploadHeapを使う
+	uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;// UploadHeapを使う
 	//頂点リソースの設定
 	D3D12_RESOURCE_DESC vertexResourceDesc{};
 	//バッファリソース、テクスチャの場合はまた別の設定をする
@@ -295,7 +295,7 @@ ID3D12Resource* CreateTextureResource(ID3D12Device* device, const DirectX::TexMe
 
 [[nodiscard]]
 ID3D12Resource* UploadTextureData(ID3D12Resource* texture, const DirectX::ScratchImage& mipImages, ID3D12Device* device,
-ID3D12GraphicsCommandList* commandList)
+	ID3D12GraphicsCommandList* commandList)
 {
 	std::vector<D3D12_SUBRESOURCE_DATA> subresources;
 	DirectX::PrepareUpload(device, mipImages.GetImages(), mipImages.GetImageCount(), mipImages.GetMetadata(), subresources);
@@ -1023,6 +1023,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 	}
 
+
+	//Log(ConvertString(std::format(L"Begin CompileShader, path:{}, profile:{}\n", filePath, profile)));
+
+	//Log("Hello\n");
+	//Log(std::format("enemyHp:{}, texturePath:{}\n", 10, 20));
+
+	//std::wstring Convertstring(const std::string & str);
+	//std::string ConvertString(const std::wstring & str);
+
+	//Log(ConvertString(std::format(L"WSTRING{}\n",10)));
+
+	//1_3////////////
 
 	IDXGIDebug1* debug;
 	if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug)))) {
