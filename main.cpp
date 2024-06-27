@@ -29,6 +29,9 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 #include "Matrix4x4.h"
 #include "Vector3.h"
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 struct Vector2 {
 	float x, y;
 };
@@ -350,7 +353,6 @@ ID3D12Resource* CreateDepthStencilTextureResource(ID3D12Device* device, int32_t 
 	return resource;
 
 }
-
 
 
 
@@ -862,6 +864,72 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	scissorRect.right = kClientWidth;
 	scissorRect.top = 0;
 	scissorRect.bottom = kClientHeight;
+
+
+	const uint32_t kSubdivision = 16; // 分割数36
+	const float kLonEvery = 2.0f * float(M_PI) / kSubdivision; // 経度分割一つ分の角度
+	const float kLatEvery = float(M_PI) / kSubdivision; // 緯度分割一つ分の角度
+
+	// 緯度の方向に分割 -π/2 〜 π/2
+	for (uint32_t latIndex = 0; latIndex < kSubdivision; ++latIndex) {
+		float lat = -float(M_PI) / 2.0f + kLatEvery * latIndex; // 現在の緯度
+
+		// 経度の方向に分割 0 〜 2π
+		for (uint32_t lonIndex = 0; lonIndex < kSubdivision; ++lonIndex) {
+			float lon = lonIndex * kLonEvery; // 現在の経度
+
+			uint32_t starIndex = (latIndex * kSubdivision + lonIndex) * 6;
+
+			//経度分割一つ分の角度φd
+			const float kLonEvery = float(M_PI) * 2.0f / float(kSubdivision);
+			//経度分割一つ分の角度θd
+			const float kLatEvery = float(M_PI) / float(kSubdivision);
+
+			// 基準点a
+			vertexData[starIndex].position.x = cos(lat) * cos(lon);
+			vertexData[starIndex].position.y = sin(lat);
+			vertexData[starIndex].position.z = cos(lat) * sin(lon);
+			vertexData[starIndex].position.w = 1.0f;
+			vertexData[starIndex].texcoord = { float(lonIndex) / float(kSubdivision), 1.0f - float(latIndex) / float(kSubdivision) };
+
+			// b
+			vertexData[starIndex + 1].position.x = cos(lat + kLatEvery) * cos(lon);
+			vertexData[starIndex + 1].position.y = sin(lat + kLatEvery);
+			vertexData[starIndex + 1].position.z = cos(lat + kLatEvery) * sin(lon);
+			vertexData[starIndex + 1].position.w = 1.0f;
+			vertexData[starIndex + 1].texcoord = { float(lonIndex) / float(kSubdivision), 1.0f - float(latIndex + 1) / float(kSubdivision) };
+
+			// c	  
+			vertexData[starIndex + 2].position.x = cos(lat) * cos(lon + kLonEvery);
+			vertexData[starIndex + 2].position.y = sin(lat);
+			vertexData[starIndex + 2].position.z = cos(lat) * sin(lon + kLonEvery);
+			vertexData[starIndex + 2].position.w = 1.0f;
+			vertexData[starIndex + 2].texcoord = { float(lonIndex + 1) / float(kSubdivision), 1.0f - float(latIndex) / float(kSubdivision) };
+
+			// d	   
+			vertexData[starIndex + 3].position.x = cos(lat + kLatEvery) * cos(lon + kLonEvery);
+			vertexData[starIndex + 3].position.y = sin(lat + kLatEvery);
+			vertexData[starIndex + 3].position.z = cos(lat + kLatEvery) * sin(lon + kLonEvery);
+			vertexData[starIndex + 3].position.w = 1.0f;
+			vertexData[starIndex + 3].texcoord = { float(lonIndex) / float(kSubdivision), 1.0f - float(latIndex + 1) / float(kSubdivision) };
+
+			// e	  
+			vertexData[starIndex + 4].position.x = cos(lat + kLatEvery) * cos(lon);
+			vertexData[starIndex + 4].position.y = sin(lat + kLatEvery);
+			vertexData[starIndex + 4].position.z = cos(lat + kLatEvery) * sin(lon);
+			vertexData[starIndex + 4].position.w = 1.0f;
+			vertexData[starIndex + 4].texcoord = { float(lonIndex + 1) / float(kSubdivision), 1.0f - float(latIndex) / float(kSubdivision) };
+
+			// f	  
+			vertexData[starIndex + 5].position.x = cos(lat) * cos(lon + kLonEvery);
+			vertexData[starIndex + 5].position.y = sin(lat);
+			vertexData[starIndex + 5].position.z = cos(lat) * sin(lon + kLonEvery);
+			vertexData[starIndex + 5].position.w = 1.0f;
+			vertexData[starIndex + 5].texcoord = { float(lonIndex) / float(kSubdivision), 1.0f - float(latIndex + 1) / float(kSubdivision) };
+
+		}
+	}
+
 
 
 
