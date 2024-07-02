@@ -887,6 +887,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			const float kLatEvery = float(M_PI) / float(kSubdivision);
 			*/
 
+			// 頂点の順番を正しく設定してテクスチャ座標を修正する
 			// 基準点a
 			vertexData[starIndex].position.x = cos(lat) * cos(lon);
 			vertexData[starIndex].position.y = sin(lat);
@@ -894,40 +895,40 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			vertexData[starIndex].position.w = 1.0f;
 			vertexData[starIndex].texcoord = { float(lonIndex) / float(kSubdivision), 1.0f - float(latIndex) / float(kSubdivision) };
 
-			//b
+			// b
 			vertexData[starIndex + 1].position.x = cos(lat + kLatEvery) * cos(lon);
 			vertexData[starIndex + 1].position.y = sin(lat + kLatEvery);
 			vertexData[starIndex + 1].position.z = cos(lat + kLatEvery) * sin(lon);
 			vertexData[starIndex + 1].position.w = 1.0f;
 			vertexData[starIndex + 1].texcoord = { float(lonIndex) / float(kSubdivision), 1.0f - float(latIndex + 1) / float(kSubdivision) };
-
-			 //c 
+					  
+			// c	   
 			vertexData[starIndex + 2].position.x = cos(lat) * cos(lon + kLonEvery);
 			vertexData[starIndex + 2].position.y = sin(lat);
 			vertexData[starIndex + 2].position.z = cos(lat) * sin(lon + kLonEvery);
 			vertexData[starIndex + 2].position.w = 1.0f;
 			vertexData[starIndex + 2].texcoord = { float(lonIndex + 1) / float(kSubdivision), 1.0f - float(latIndex) / float(kSubdivision) };
-
+					   
 			//d
+			vertexData[starIndex + 3].position.x = cos(lat + kLatEvery) * cos(lon);
+			vertexData[starIndex + 3].position.y = sin(lat + kLatEvery);
+			vertexData[starIndex + 3].position.z = cos(lat + kLatEvery) * sin(lon);
+			vertexData[starIndex + 3].position.w = 1.0f;
+			vertexData[starIndex + 3].texcoord = { float(lonIndex) / float(kSubdivision), 1.0f - float(latIndex + 1) / float(kSubdivision) };
+
+			// b2
 			vertexData[starIndex + 4].position.x = cos(lat + kLatEvery) * cos(lon + kLonEvery);
 			vertexData[starIndex + 4].position.y = sin(lat + kLatEvery);
 			vertexData[starIndex + 4].position.z = cos(lat + kLatEvery) * sin(lon + kLonEvery);
 			vertexData[starIndex + 4].position.w = 1.0f;
 			vertexData[starIndex + 4].texcoord = { float(lonIndex + 1) / float(kSubdivision), 1.0f - float(latIndex + 1) / float(kSubdivision) };
 
-			//b2
-			vertexData[starIndex + 3].position.x = cos(lat + kLatEvery) * cos(lon);
-			vertexData[starIndex + 3].position.y = sin(lat + kLatEvery);
-			vertexData[starIndex + 3].position.z = cos(lat + kLatEvery) * sin(lon);
-			vertexData[starIndex + 3].position.w = 1.0f;
-			vertexData[starIndex + 3].texcoord = { float(lonIndex + 1) / float(kSubdivision), 1.0f - float(latIndex) / float(kSubdivision) };
-
 			//c2
 			vertexData[starIndex + 5].position.x = cos(lat) * cos(lon + kLonEvery);
 			vertexData[starIndex + 5].position.y = sin(lat);
 			vertexData[starIndex + 5].position.z = cos(lat) * sin(lon + kLonEvery);
 			vertexData[starIndex + 5].position.w = 1.0f;
-			vertexData[starIndex + 5].texcoord = { float(lonIndex) / float(kSubdivision), 1.0f - float(latIndex + 1) / float(kSubdivision) };
+			vertexData[starIndex + 5].texcoord = { float(lonIndex + 1) / float(kSubdivision), 1.0f - float(latIndex) / float(kSubdivision) };
 
 		}
 	}
